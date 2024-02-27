@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRoleEnum;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -21,7 +22,7 @@ class UsersSeeder extends Seeder
         $user->email_verified_at = now();
         $user->assignRole('admin');
         $user->save();
-        
+
         $user = new User();
         $user->name = 'Moderator';
         $user->phone = '998902222222';
@@ -37,7 +38,7 @@ class UsersSeeder extends Seeder
         $user->password = Hash::make('secret');
         $user->email = 'viewer@example.com';
         $user->email_verified_at = now();
-        $user->assignRole('viewer');
+        $user->assignRole(UserRoleEnum::VIEWER);
         $user->save();
     }
 }

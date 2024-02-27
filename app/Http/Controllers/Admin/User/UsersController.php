@@ -1,18 +1,21 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Users;
+namespace App\Http\Controllers\Admin\User;
 
 use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\User\UserCreateRequest;
+use App\Http\Requests\Admin\User\UserUpdateRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
-    public function index() 
+    public function index(): JsonResponse
     {
         $query = User::query()->with(['roles']);
 
@@ -21,11 +24,11 @@ class UsersController extends Controller
         return response()->json($query->paginate());
     }
 
-    public function show(string $userId)
+    public function show(string $userId): JsonResponse
     {
         $user = User::query()->find($userId);
         if ($user === null) {
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found!',
@@ -33,27 +36,18 @@ class UsersController extends Controller
             ]);
         }
 
-        return response($user);
+        return response()->json($user);
     }
 
-    public function create(Request $request)
+    public function create(UserCreateRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|int|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'status' => 'required|string|in:' . implode(',', UserStatusEnum::values()),
-            'role' => 'required|string|in:' . implode(',', UserRoleEnum::values())
-        ]);
-
         $user = new User();
         $user->name = $request->input('name');
         $user->phone = $request->input('phone');
         $user->email = $request->input('email');
         $user->status = $request->input('status');
         $user->password = Hash::make($request->input('password'));
-        
+
         $user = DB::transaction(function () use ($request, $user) {
             $user->save();
             $user->assignRole([$request->input('role')]);
@@ -63,17 +57,8 @@ class UsersController extends Controller
         return response()->json($user);
     }
 
-    public function update(Request $request, string $userId)
+    public function update(UserUpdateRequest $request, string $userId): JsonResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|int|unique:users,phone,' . $userId,
-            'email' => 'required|string|email|max:255|unique:users,email,' . $userId,
-            'password' => 'string|min:8|confirmed',
-            'status' => 'required|string|in:' . implode(',', UserStatusEnum::values()),
-            'role' => 'required|string|in:' . implode(',', UserRoleEnum::values())
-        ]);
-
         $user = User::query()->findOrFail($userId);
         $user->name = $request->input('name');
         $user->phone = $request->input('phone');
@@ -82,7 +67,7 @@ class UsersController extends Controller
         if ($password = $request->input('password')) {
             $user->password = Hash::make($password);
         }
-        
+
         $user = DB::transaction(function () use ($request, $user) {
             $user->save();
             $user->assignRole([$request->input('role')]);
@@ -92,7 +77,7 @@ class UsersController extends Controller
         return response()->json($user);
     }
 
-    public function destroy(string $userId)
+    public function destroy(string $userId): JsonResponse
     {
         $user = User::query()->findOrFail($userId);
         $user->delete();

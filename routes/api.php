@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\AppController;
 use App\Http\Controllers\Admin\News\NewsController as AdminNewsController;
-use App\Http\Controllers\Admin\Users\UsersController;
+use App\Http\Controllers\Admin\User\UsersController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\News\NewsController;
 use App\Http\Controllers\User\ProfileController;
@@ -35,31 +35,6 @@ Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
 
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-});
-
-/**
- * Admin section
- */
-Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin|moderator'])->group(function () {
-    Route::prefix('users')->middleware(['role:admin'])->group(function () {
-        Route::get('/', [UsersController::class, 'index']);
-        Route::post('/', [UsersController::class, 'create']);
-
-        Route::get('/{userId}', [UsersController::class, 'show']);
-        Route::patch('/{userId}', [UsersController::class, 'update']);
-        Route::delete('/{userId}', [UsersController::class, 'destroy']);
-    });
-
-    Route::prefix('news')->middleware(['role:admin|moderator'])->group(function () {
-        Route::get('/', [AdminNewsController::class, 'index']);
-        Route::post('/', [AdminNewsController::class, 'create']);
-
-        Route::get('/{newsId}', [AdminNewsController::class, 'show']);
-        Route::post('/{newsId}', [AdminNewsController::class, 'update']);
-        Route::delete('/{newsId}', [AdminNewsController::class, 'destroy']);
-    });
-
-    Route::get('/app', [AppController::class, 'app']);
 });
 
 /**

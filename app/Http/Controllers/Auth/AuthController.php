@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserRoleEnum;
 use App\Enums\UserStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RequestLoginRequest;
+use App\Http\Requests\Auth\RequestRegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function requestRegister(Request $request): JsonResponse
+    public function requestRegister(RequestRegisterRequest $request): JsonResponse
     {
         $request->validate([
             'phone' => 'required|int|unique:users',
@@ -21,18 +26,18 @@ class AuthController extends Controller
 
         //check if user already tried 5 times
         // if so then throw en exception
-        
+
         //Send an OTP code through event()
             //Generate unique OTP code that wasn't sent earlier
             //Send it through Notify service to subject
-            //Save to otp_codes hash so we ensure security compliance and won't send same otp in the future
+            //Save to otp_codes hash(phone+code) so we ensure security compliance and won't send same otp in the future
 
         return response()->json([
             'message' => __('auth.otp_sent')
         ]);
     }
 
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -42,7 +47,7 @@ class AuthController extends Controller
             'otp_code' => 'required|digits:6',
         ]);
 
-        // check if there is hashed (phone+otp) through the OTP service
+        // check if there is hashed (phone+otp)
         // if ok then
             // create User,
             // assign role Viewer,
@@ -58,7 +63,7 @@ class AuthController extends Controller
             $user->status = UserStatusEnum::ACTIVE;
             $user->save();
 
-            $user->assignRole('viewer');
+            $user->assignRole(UserRoleEnum::VIEWER);
 
             return $user;
         });
@@ -69,7 +74,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function requestLogin(Request $request)
+    public function requestLogin(RequestLoginRequest $request): JsonResponse
     {
         $request->validate([
             'phone' => 'required|int|exists:users',
@@ -88,16 +93,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'phone' => 'required|int|exists:users',
-            'password' => 'required|string',
-            'otp_code' => 'required|digits:6',
-        ]);
-
         //validate OTP code
-
 
         //validate user password
         if (Auth::attempt($request->only(['phone', 'password'])) === false) {

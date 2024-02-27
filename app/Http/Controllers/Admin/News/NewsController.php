@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin\News;
 
 use App\Enums\NewsStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\News\NewsCreateRequest;
+use App\Http\Requests\Admin\News\NewsUpdateRequest;
 use App\Models\News;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
-    public function index() 
+    public function index(): JsonResponse
     {
         $query = News::query();
 
@@ -18,22 +21,14 @@ class NewsController extends Controller
         return response()->json($query->paginate());
     }
 
-    public function show(string $newsId)
+    public function show(string $newsId): JsonResponse
     {
         $news = News::query()->findOrFail($newsId);
         return response()->json($news);
     }
 
-    public function create(Request $request)
+    public function create(NewsCreateRequest $request): JsonResponse
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'text' => 'required|string',
-            'status' => 'required|string|in:' . implode(',', NewsStatusEnum::values()),
-            'image' => 'required|image|mimes:jpg,png,jpeg,gif|max:2048'
-        ]);
-
         $image_path = $request->file('image')->store('image', 'public');
 
         $news = new News();
@@ -49,16 +44,8 @@ class NewsController extends Controller
         return response()->json($news);
     }
 
-    public function update(Request $request, string $newsId)
+    public function update(NewsUpdateRequest $request, string $newsId): JsonResponse
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'text' => 'required|string',
-            'status' => 'required|string|in:' . implode(',', NewsStatusEnum::values()),
-            'image' => 'image|mimes:jpg,png,jpeg,gif|max:2048'
-        ]);
-
         $news = News::query()->findOrFail($newsId);
         $news->title = $request->input('title');
         $news->description = $request->input('description');
@@ -77,8 +64,7 @@ class NewsController extends Controller
         return response()->json($news);
     }
 
-
-    public function destroy(string $newsId)
+    public function destroy(string $newsId): JsonResponse
     {
         News::query()->findOrFail($newsId)->delete();
 

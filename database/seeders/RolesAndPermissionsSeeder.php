@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRoleEnum;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -14,10 +15,10 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        Role::create(['name' => 'admin']);
+        Role::create(['name' => UserRoleEnum::ADMIN]);
 
-        Role::create(['name' => 'moderator']);
+        Role::create(['name' => UserRoleEnum::MODERATOR]);
 
-        Role::create(['name' => 'viewer']);
+        Role::create(['name' => UserRoleEnum::VIEWER]);
     }
 }
