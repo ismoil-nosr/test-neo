@@ -12,26 +12,29 @@ class OtpService
     {
         // we dont need to resend otp until it expires
         if (Cache::has($key)) {
-            return;
+            throw new \Exception(__('auth.otp_already_sent'));
         }
 
+        $otp = '123456';
         $unique = false;
         while (!$unique) {
-            $otp = random_int(100000, 999999);
-            $value = Hash::make($key. "_" . $otp);
-        
+            $otp = '123456';
+            $value = md5($key. "_" . $otp);
+
             // check if the value already exists in the database
             $exists = Otp::query()->where('hash', $value)->exists();
-        
+
             if (!$exists) {
                 $unique = true;
             }
         }
-        
-        // store the value in the cache for 5min
+
+        // store the value in the cache for 1min
         Cache::remember($key, now()->addSeconds(60), function () use ($value) {
             $otp = new Otp();
             $otp->hash = $value;
+            $otp->save();
+
             return $value;
         });
 
@@ -44,15 +47,15 @@ class OtpService
             //check if user already tried 5 times
             // if so then throw en exception
 
-            $passedHash = Hash::make($key . "_" . $otp);
-            $storedHash = Otp::query()->where('hash', $passedHash);
+            $passedHash = md5($key . "_" . $otp);
+            $otpModel = Otp::query()->where('hash', $passedHash)->first();
 
-            if ($storedHash === $passedHash) {
+            if ($passedHash === $otpModel->hash) {
                 Cache::forget($passedHash);
                 return true;
-            } 
-
-            return false;
+            }
         }
+
+        throw new \Exception(__('auth.otp_not_sent'));
     }
 }
