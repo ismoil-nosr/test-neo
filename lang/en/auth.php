@@ -16,7 +16,9 @@ return [
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'otp_already_sent' => 'OTP already sent. Try again later.',
     'otp_sent' => 'OTP code was sent.',
     'otp_wrong' => 'Wrong otp code!',
+    'otp_not_sent' => 'There is no issued otp for this number!',
     'logout' => 'Successfully logged out.'
 ];
