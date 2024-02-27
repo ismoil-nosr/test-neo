@@ -6,7 +6,7 @@ class NotifyService
 {
     public static function createSender(string $senderType): NotifySender
     {
-        $className = ucfirst(strtolower($senderType)) . 'Sender';
+        $className = 'App\\Services\\Notify\\' . ucfirst(strtolower($senderType)) . 'Notify';
 
         if (class_exists($className)) {
             return new $className();
