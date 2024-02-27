@@ -36,5 +36,9 @@ class Handler extends ExceptionHandler
                 ], 404);
             }
         });
+
+        $this->renderable(function (Throwable $e) {
+            return response(['error' => $e->getMessage()], $e->getCode() ?: 400);
+        });
     }
 }
