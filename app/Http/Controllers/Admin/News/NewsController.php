@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Admin\News;
 
-use App\Enums\NewsStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\News\NewsCreateRequest;
 use App\Http\Requests\Admin\News\NewsUpdateRequest;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
