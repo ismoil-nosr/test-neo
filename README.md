@@ -17,7 +17,7 @@ php artisan key:generate
 php artisan migrate --seed
 ```
 
-### Запуск в докере
+### Запуск в докере (recommended)
 ```bash
 make init
 ```

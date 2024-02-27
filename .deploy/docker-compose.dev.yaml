@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app_fpm:
+    container_name: app_fpm
+    build:
+      context: ../
+      dockerfile: .deploy/Dockerfile.dev
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ../:/var/www
+
+  app_nginx:
+      container_name: app_nginx
+      build:
+          context: ../
+          dockerfile: .deploy/Dockerfile.nginx
+      volumes:
+          - ../:/var/www
+      ports:
+          - "10800:80"
+
+  app_db:
+      container_name: app_db
+      image: mariadb
+      environment:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_USER: root
+          MYSQL_PASSWORD: secret
+      volumes:
+          - app-db:/var/lib/mysql
+      restart: always
+
+  app_redis:
+    container_name: app_redis
+    image: redis:alpine
+    restart: always
+    volumes:
+      - app-redisdb:/root/redis
+
+volumes:
+  app-db:
+    driver: local
+  app-redisdb:
+    driver: local
+
+networks:
+  default:
+    external: true
+    name: app_network
