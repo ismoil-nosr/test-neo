@@ -29,9 +29,11 @@ help:
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(COLOR_CYAN)%-20s$(COLOR_RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 init:
-		docker network create app_network
+		docker network create app_network || true
 		cp .env.example .env
 		make update
+		make composer-install
+		make partisan cmd="migrate:fresh --seed" 
 
 update: ## Rebuild and up the prod container
 		docker compose -f .deploy/docker-compose.dev.yaml up -d --build
